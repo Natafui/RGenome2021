@@ -38,7 +38,7 @@ If you are installing R packages from source code (as we will do later in the co
 Simple!!!
 
 ```{r, message=FALSE}
-# library(tidyverse)
+library(tidyverse)
 ```
 
 ...but it is easy to forget this step. Which will result in an error message when you try to use the libraries' functions.
@@ -154,7 +154,9 @@ When we read in the data R let's us know the data types in the Column specificat
 str(UMass_COVID_data)
 ```
 
-Now let's try to read in a SNP genotype file from 23andMe. Since the file is very large we will first work with a concatenated file with just 25 lines at the begining. First click on the file in 25andMe_cat25.txt in your data directory to open it. Notice that the first 14 lines contain information about the file and have hash tags #.  Then the data follows in tab separated columns. To read this into R using `read_tsv` (tab separated values) and ignore the comment lines containing #.
+Now let's try to read in a SNP genotype file from 23andMe. Since the file is very large we will first work with a concatenated file with just 25 lines at the begining. First click on the file in 25andMe_cat25.txt in your data directory to open it. Notice that the first 14 lines contain information about the file and have hash tags #. `rsid` numbers can be linked to data in NCBI's [SNP database](https://www.ncbi.nlm.nih.gov/snp/rs4477212) and other resources.
+
+The data follows in tab separated columns. To read this into R using `read_tsv` (tab separated values) and ignore the comment lines containing #.
 
 ```{r}
 mySNPs_cat25 <- read_tsv("data/23andMe_cat25.txt", comment = '#')
@@ -250,11 +252,19 @@ UMass_COVID_data_filter <- UMass_COVID_data %>%
 UMass_COVID_data_filter
 ```
 
-Some more examples using the 23andMe data. To count the number of a factor in a category
+Some more examples using the 23andMe data. To count the sum of each level in a factor.
 
 ```{r}
 mySNPs_all %>% 
   count(genotype)
+```
+
+However, count does not work within `summarize` See `tidyverse/dplyr` documentation for [Count observations by group](https://dplyr.tidyverse.org/reference/count.html). Instead use `n()`. Hint: this is important for one of the exercises.
+
+```{r}
+mySNPs_all %>% 
+  group_by(genotype) %>% 
+  summarise(genotype_count = n())
 ```
 
 To sort
@@ -270,13 +280,6 @@ mySNPs_all %>%
   count(genotype)
 ```
 
-
-To group be a particular column for calculations 
-```{r}
-mySNPs_all %>% 
-  group_by(chromosome, genotype) %>% 
-  count(genotype)
-```
 ## Making tables in R Markdown reports
 
 You can make tables using `knitr`
@@ -311,7 +314,7 @@ Filter to just the MT chromosome and remove genotypes A and T. (you can use != t
 
 ### Exercise 3
 
-Use group_by() and summarize() to find the min positon, max position and total number of positions for each chromosomes. 
+Use group_by() and summarize() to find the min positon, max position and number of positions (SNPs) measured for each chromosome. Note that each position represents a SNP, therefore the number of SNPs for a chromosome = the number of positions measured on each chromosome. 
 
 ### Exercise 4
 
